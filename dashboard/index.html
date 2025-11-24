@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Urban LULC Change Detection Dashboard</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <style>
+        #map { height: 600px; width: 100%; }
+        .controls { margin: 20px; }
+    </style>
+</head>
+<body>
+    <h1>Urban LULC Change Detection (2018-2025)</h1>
+    <div class="controls">
+        <label for="year-select">Select Year:</label>
+        <select id="year-select" onchange="updateLayer()">
+            <option value="2018">2018</option>
+            <option value="2019">2019</option>
+            <option value="2020">2020</option>
+            <option value="2021">2021</option>
+            <option value="2022">2022</option>
+            <option value="2023">2023</option>
+            <option value="2024">2024</option>
+            <option value="2025">2025</option>
+        </select>
+    </div>
+    <div id="map"></div>
+
+    <script>
+        var map = L.map('map').setView([12.9716, 77.5946], 12); // Bangalore coordinates
+        
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(map);
+
+        var currentLayer = null;
+
+        function updateLayer() {
+            var year = document.getElementById('year-select').value;
+            
+            if (currentLayer) {
+                map.removeLayer(currentLayer);
+            }
+
+            // Placeholder for actual tile layers
+            // In a real deployment, these would be hosted tiles or GeoJSONs
+            // For now, we just show a message or load a dummy image overlay
+            console.log("Loading layer for year: " + year);
+            
+            // Example: Load a local image overlay (requires images to be present)
+            // var imageUrl = 'output/classification_' + year + '.png';
+            // var imageBounds = [[12.9, 77.5], [13.1, 77.7]];
+            // currentLayer = L.imageOverlay(imageUrl, imageBounds).addTo(map);
+        }
+        
+        // Initialize
+        updateLayer();
+    </script>
+</body>
+</html>

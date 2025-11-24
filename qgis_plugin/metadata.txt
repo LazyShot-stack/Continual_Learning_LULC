@@ -1,0 +1,13 @@
+[general]
+name=Continual Urban LULC
+qgisMinimumVersion=3.0
+description=Continual Learning for Urban Land Use Change Detection using Sentinel-2 and EWC.
+version=0.1
+author=Your Name
+email=your.email@example.com
+about=This plugin implements a continual learning approach for updating LULC maps annually without catastrophic forgetting.
+tracker=https://github.com/yourusername/yourrepo/issues
+repository=https://github.com/yourusername/yourrepo
+icon=icon.png
+experimental=True
+tags=remote sensing, deep learning, continual learning, sentinel-2
