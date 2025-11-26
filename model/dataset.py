@@ -1,21 +1,34 @@
 import torch
 from torch.utils.data import Dataset
+import torchvision.transforms as transforms
 import rasterio
 import numpy as np
 import os
 
 class SentinelDataset(Dataset):
-    def __init__(self, image_dir, label_dir, year=None, transform=None):
+    def __init__(self, image_dir, label_dir, year=None, transform=None, augment=False):
         """
         Args:
             image_dir (str): Directory with Sentinel-2 images.
             label_dir (str): Directory with Dynamic World labels.
             year (int, optional): Year to filter files by.
             transform (callable, optional): Optional transform to be applied on a sample.
+            augment (bool): Enable data augmentation for training.
         """
         self.image_dir = image_dir
         self.label_dir = label_dir
         self.transform = transform
+        self.augment = augment
+        
+        # ===== IMPROVEMENT: Initialize augmentation transforms =====
+        if self.augment:
+            self.aug_transforms = transforms.Compose([
+                transforms.RandomRotation(degrees=15),
+                transforms.RandomHorizontalFlip(p=0.5),
+                transforms.RandomVerticalFlip(p=0.5),
+            ])
+        else:
+            self.aug_transforms = None
         
         all_files = os.listdir(image_dir)
         self.images = sorted([
@@ -51,7 +64,14 @@ class SentinelDataset(Dataset):
         # Here assuming 0-1 from GEE script (divide by 10000 done in script)
         image = np.clip(image, 0, 1)
         
-        sample = {'image': torch.from_numpy(image), 'label': torch.from_numpy(label)}
+        image_tensor = torch.from_numpy(image).float()
+        label_tensor = torch.from_numpy(label).long()
+        
+        # ===== IMPROVEMENT: Apply augmentation if enabled =====
+        if self.augment and self.aug_transforms:
+            image_tensor = self.aug_transforms(image_tensor)
+        
+        sample = {'image': image_tensor, 'label': label_tensor}
         
         if self.transform:
             sample = self.transform(sample)

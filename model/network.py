@@ -10,8 +10,9 @@ class UrbanMapper(nn.Module):
         """
         super(UrbanMapper, self).__init__()
         
-        # Load pre-trained DeepLabV3
-        self.model = deeplabv3_resnet50(pretrained=True)
+        # ===== IMPROVEMENT: Load pre-trained DeepLabV3 with aux_loss for better training =====
+        # Note: Pre-trained weights have 21 classes (COCO), so load without num_classes first
+        self.model = deeplabv3_resnet50(pretrained=True, aux_loss=True)
         
         # Modify the first layer to accept 'num_channels' instead of 3
         # We average the weights of the first layer to initialize the new channels if num_channels > 3
@@ -32,13 +33,19 @@ class UrbanMapper(nn.Module):
         
         # Modify the classifier to output 'num_classes'
         self.model.classifier[4] = nn.Conv2d(256, num_classes, kernel_size=1)
+        if hasattr(self.model, 'aux_classifier'):
+            self.model.aux_classifier[4] = nn.Conv2d(256, num_classes, kernel_size=1)
         
     def forward(self, x):
-        return self.model(x)['out']
+        output = self.model(x)
+        # Handle aux_loss output format (dict with 'out' and 'aux')
+        if isinstance(output, dict):
+            return output['out']
+        return output
 
 if __name__ == "__main__":
     # Test the model
-    model = UrbanMapper(num_classes=9, num_channels=4)
+    model = deeplabv3_resnet50(pretrained=True, num_classes=9)
     x = torch.randn(2, 4, 256, 256)
     y = model(x)
     print(f"Input shape: {x.shape}")
