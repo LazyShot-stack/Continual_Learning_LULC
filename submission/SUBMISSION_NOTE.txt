@@ -1,9 +1,0 @@
-Continual_Learning_LULC - Submission Note
-
-This copy is inside the `submission/` folder for packaging convenience.
-
-See the root-level `DOCUMENTATION_FULL.md` for full reproduction and implementation details.
-
-Quick-run (example):
-.\lulc_env\Scripts\Activate.ps1
-.\lulc_env\Scripts\python.exe model/inference.py --checkpoint model/checkpoint_2019.pth --image LULC_Continual_Learning_Data/Sentinel2_2019_0.tif --output output_predictions_2019.tif
