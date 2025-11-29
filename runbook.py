@@ -84,6 +84,38 @@ def validate_model(year):
     
     return run_command(cmd, f"Validating model for year {year}")
 
+def generate_dashboard_assets():
+    """Generate prediction assets for the dashboard."""
+    print("\n" + "="*60)
+    print("GENERATING DASHBOARD ASSETS")
+    print("="*60)
+    
+    data_dir = "LULC_Continual_Learning_Data"
+    years = range(2018, 2026) # 2018 to 2025
+    
+    for year in years:
+        checkpoint = f"model/checkpoint_{year}.pth"
+        image_path = f"{data_dir}/Sentinel2_{year}.tif"
+        
+        if not os.path.exists(checkpoint):
+            print(f"⚠️  Skipping {year}: Checkpoint not found ({checkpoint})")
+            continue
+            
+        if not os.path.exists(image_path):
+            # Try to find any image for that year
+            potential_images = [f for f in os.listdir(data_dir) if f.startswith(f"Sentinel2_{year}")]
+            if potential_images:
+                image_path = os.path.join(data_dir, potential_images[0])
+            else:
+                print(f"⚠️  Skipping {year}: No satellite image found")
+                continue
+        
+        print(f"Processing year {year}...")
+        generate_predictions(year, image_path)
+    
+    print("\n✅ Dashboard assets generation complete!")
+    return True
+
 def quick_test():
     """Quick test: setup → dummy data → train → validate."""
     print("\n" + "="*60)
@@ -162,6 +194,8 @@ Examples:
                         help='Generate predictions for given image')
     parser.add_argument('--validate', type=int, metavar='YEAR',
                         help='Validate model for specific year')
+    parser.add_argument('--dashboard', action='store_true',
+                        help='Generate all assets for the dashboard')
     
     args = parser.parse_args()
     
@@ -185,6 +219,8 @@ Examples:
         generate_predictions(int(args.predict[0]), args.predict[1])
     elif args.validate:
         validate_model(args.validate)
+    elif args.dashboard:
+        generate_dashboard_assets()
 
 if __name__ == "__main__":
     main()

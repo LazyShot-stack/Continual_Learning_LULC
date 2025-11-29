@@ -13,7 +13,7 @@ from dataset import SentinelDataset
 from ewc import EWC
 
 # ===== IMPROVEMENT: Hyperparameters =====
-EPOCHS = 100  # Increased from ~5-10
+EPOCHS = 5  # Reduced for demo speed
 LEARNING_RATE = 0.001  # Standard for Adam
 BATCH_SIZE = 16  # Increased from 4
 WEIGHT_DECAY = 1e-4  # L2 regularization

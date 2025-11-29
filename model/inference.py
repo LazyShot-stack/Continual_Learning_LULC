@@ -13,6 +13,8 @@ from pathlib import Path
 import sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from network import UrbanMapper
+import matplotlib.pyplot as plt
+from matplotlib.colors import ListedColormap
 
 def load_model(checkpoint_path, num_classes=9, device='cpu'):
     """Load trained model from checkpoint."""
@@ -79,6 +81,26 @@ def save_probabilities(probabilities, output_path, profile):
         for i in range(num_classes):
             dst.write((probabilities[i] * 255).astype(np.float32), i + 1)
 
+def save_prediction_png(predictions, output_path):
+    """Save predictions as a colored PNG using matplotlib."""
+    # Define Dynamic World colors (normalized 0-1)
+    colors = np.array([
+        [0.255, 0.608, 0.875], # Water
+        [0.224, 0.490, 0.286], # Trees
+        [0.533, 0.690, 0.325], # Grass
+        [0.478, 0.529, 0.776], # Flooded Vegetation
+        [0.894, 0.588, 0.208], # Crops
+        [0.875, 0.765, 0.353], # Shrub and Scrub
+        [0.769, 0.157, 0.106], # Built Area
+        [0.647, 0.608, 0.561], # Bare Ground
+        [0.702, 0.624, 0.882]  # Snow and Ice
+    ])
+    
+    cmap = ListedColormap(colors)
+    
+    # Save directly
+    plt.imsave(output_path, predictions, cmap=cmap, vmin=0, vmax=8)
+
 def main():
     parser = argparse.ArgumentParser(description='Generate LULC classification maps')
     parser.add_argument('--checkpoint', type=str, required=True, 
@@ -123,6 +145,11 @@ def main():
     # Save results
     print(f"Saving classification map to {args.output}...")
     save_prediction(predictions, args.output, profile)
+    
+    # Save PNG
+    png_output = args.output.replace('.tif', '.png')
+    print(f"Saving visualization to {png_output}...")
+    save_prediction_png(predictions, png_output)
     
     if args.save_probabilities:
         prob_output = args.output.replace('.tif', '_probabilities.tif')
